@@ -94,3 +94,32 @@ export async function onRequestPost({ request, env }) {
 }
 
 export const onRequest = () => json({ error: 'method_not_allowed' }, 405);
+
+// ---- Temporary check page: open /api/chat?test=1 to see why the AI fails ----
+export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+  if (url.searchParams.get('test') !== '1') return json({ status: 'server ok', keySet: !!env.GEMINI_API_KEY });
+  if (!env.GEMINI_API_KEY) return json({ keySet: false });
+  const now = Date.now();
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const recent = (hits.get(ip) || []).filter(t => now - t < 60000);
+  if (recent.length >= LIMITS.perMin || dayCount >= LIMITS.perDay) return json({ error: 'limit' }, 429);
+  hits.set(ip, recent.concat(now));
+  dayCount++;
+  const model = env.GEMINI_MODEL || MODELS[0];
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Say hi' }] }], generationConfig: { maxOutputTokens: 20 } })
+    });
+    let msg = 'OK';
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      msg = String((d.error && d.error.message) || 'no message').slice(0, 200);
+    }
+    return json({ keySet: true, model, httpStatus: res.status, message: msg });
+  } catch (e) {
+    return json({ keySet: true, model, error: 'could not reach Google' });
+  }
+}
