@@ -39,3 +39,5 @@ aiSend = function (text) {
     .then(d => finish(d.reply || AI_REST, d.ids))
     .catch(() => finish(AI_REST));
 };
+// updated
+
