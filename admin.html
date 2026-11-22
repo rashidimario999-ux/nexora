@@ -1,190 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="blue">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Nexora Admin</title>
 <style>
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; background: #F1F5FB; color: #0F1E3D; }
-.bar { background: #0B2E6B; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-.bar h1 { margin: 0; font-size: 18px; }
-.bar span { color: #8FB4FF; font-size: 12px; display: block; }
-.wrap { max-width: 900px; margin: 0 auto; padding: 14px; }
-.box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(11,46,107,.08); }
-input, button { width: 100%; padding: 12px; margin: 6px 0; font-size: 16px; border-radius: 10px; border: 1px solid #C5D3EA; }
-button { background: #1D4ED8; color: #fff; border: 0; font-weight: 700; }
-button.light { background: #E3ECFB; color: #0B2E6B; }
-.bar button { width: auto; margin: 0 0 0 8px; padding: 8px 12px; font-size: 13px; }
-#msg { font-weight: 700; color: #B42318; margin-top: 8px; }
-.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.card { background: #fff; border-radius: 12px; padding: 12px; border-left: 5px solid #1D4ED8; box-shadow: 0 2px 8px rgba(11,46,107,.08); }
-.card small { color: #5A6B8C; display: block; font-size: 12px; }
-.card b { font-size: 22px; }
-.tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; }
-.tabs button { width: auto; margin: 0; padding: 10px 14px; font-size: 14px; background: #E3ECFB; color: #0B2E6B; white-space: nowrap; }
-.tabs button.on { background: #1D4ED8; color: #fff; }
-.scroll { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th { text-align: left; background: #E3ECFB; padding: 8px; white-space: nowrap; }
-td { padding: 8px; border-top: 1px solid #E3ECFB; white-space: nowrap; }
-.empty { padding: 16px; color: #5A6B8C; }
+:root{--bg:#050B1F;--side:#07102A;--card:#0A1431;--line:#16244A;--txt:#EAF0FF;--mut:#8A98BD;--acc:#2F6BFF;--a2:#3FD28A;--a3:#8B5CF6;--bad:#EF4444;--inp:#0B1636}
+[data-theme=purple]{--bg:#0A0720;--side:#0D0A28;--card:#120E33;--line:#241C54;--acc:#7C3AED;--a2:#2F6BFF;--a3:#F59E0B;--inp:#130F36;--mut:#9C93C9}
+[data-theme=light]{--bg:#F1F5FB;--side:#fff;--card:#fff;--line:#DCE4F2;--txt:#0F1E3D;--mut:#5A6B8C;--acc:#1D4ED8;--inp:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+button,input,select{font:inherit;color:inherit}
+#login{max-width:380px;margin:60px auto;padding:0 14px}
+#app{display:none}
+#side{position:fixed;inset:0 auto 0 0;width:240px;background:var(--side);border-right:1px solid var(--line);padding:14px 10px;overflow:auto;transform:translateX(-100%);transition:.2s;z-index:20}
+#side.open{transform:none}
+@media(min-width:900px){#side{transform:none}#main{margin-left:240px}#burger{display:none}}
+.logo{display:flex;gap:10px;align-items:center;padding:4px 8px 14px;font-weight:800;font-size:20px}
+.logo i{width:34px;height:34px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-style:normal;color:#fff}
+.logo small{display:block;font-size:11px;color:var(--mut);font-weight:500}
+.nav button{display:flex;gap:12px;width:100%;padding:11px 12px;margin:2px 0;background:none;border:0;border-radius:10px;color:var(--mut);cursor:pointer;text-align:left;font-size:14px}
+.nav button.on{background:var(--acc);color:#fff}
+header{display:flex;gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:10}
+#q{flex:1;min-width:0;background:var(--inp);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.ib{background:var(--inp);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;position:relative}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;border-radius:9px;font-size:11px;padding:1px 6px}
+.pop{position:absolute;right:14px;top:58px;width:min(320px,90vw);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;display:none;z-index:30;max-height:70vh;overflow:auto}
+.pop.show{display:block}
+.pad{padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.top h2{margin:0}.top p{margin:4px 0 0;color:var(--mut)}
+.date{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat small{color:var(--mut);display:block}.stat b{font-size:24px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+.card h3{margin:0 0 8px;font-size:15px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+.tag{padding:2px 9px;border-radius:99px;font-size:12px;background:var(--inp);border:1px solid var(--line)}
+.ok{color:var(--a2)}.no{color:var(--bad)}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;font-size:13px}
+.btn.g{background:var(--inp);border:1px solid var(--line);color:var(--txt)}
+.btn.w{width:100%;margin-top:8px;padding:12px}
+.qa{display:grid;gap:8px}
+.qa .btn{text-align:left;padding:12px}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;color:var(--mut);padding:8px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:8px;border-top:1px solid var(--line);white-space:nowrap}
+input.l{width:100%;padding:12px;margin:6px 0;background:var(--inp);border:1px solid var(--line);border-radius:10px}
+select{background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:6px}
+.leg span{margin-right:14px;font-size:12px;color:var(--mut)}
+#msg{color:var(--bad);font-weight:700;margin-top:8px}
 </style>
 </head>
 <body>
+<div id="login"><div class="card">
+<div class="logo"><i>N</i><div>Nexora<small>Admin Panel</small></div></div>
+<input class="l" id="email" type="email" placeholder="Admin email">
+<input class="l" id="password" type="password" placeholder="Password">
+<button class="btn w" onclick="signIn()">Sign in</button>
+<div id="msg"></div></div></div>
 
-<div id="login" class="wrap">
-  <div class="box">
-    <h2>Nexora Admin</h2>
-    <input id="email" type="email" placeholder="Admin email">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="signIn()">Sign in</button>
-    <div id="msg"></div>
-  </div>
-</div>
-
-<div id="dash" hidden>
-  <div class="bar">
-    <h1>Nexora Admin<span>Command centre</span></h1>
-    <div><button class="light" onclick="refresh()">Refresh</button><button class="light" onclick="logout()">Log out</button></div>
-  </div>
-  <div class="wrap">
-    <div id="cards" class="cards"></div>
-    <div id="tabs" class="tabs"></div>
-    <div class="box scroll" id="table"></div>
-  </div>
-</div>
+<div id="app">
+<aside id="side"><div class="logo"><i>N</i><div>Nexora<small>Admin Panel</small></div></div><nav class="nav" id="nav"></nav></aside>
+<div id="main">
+<header>
+<button class="ib" id="burger" onclick="$('side').classList.toggle('open')">&#9776;</button>
+<input id="q" placeholder="Search users, orders, anything..." oninput="search(this.value)">
+<button class="ib" onclick="pop('notes')">&#128276;<span class="badge" id="nb"></span></button>
+<button class="ib" onclick="pop('umenu')">Admin &#9662;</button>
+</header>
+<div class="pop" id="notes"></div>
+<div class="pop" id="umenu"><button class="btn g w" onclick="go('settings')">Settings</button><button class="btn g w" onclick="logout()">Log out</button></div>
+<div class="pad" id="view"></div>
+</div></div>
 
 <script>
-var creds = null;
-var data = null;
-var tab = "orders";
+var C=null,D=null,V="dash",Q="";
+var $=function(i){return document.getElementById(i)};
+function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function ap(p){for(var i=1;i<arguments.length;i++)p.appendChild(arguments[i]);return p}
+var NAV=[["dash","Dashboard","\u25A6"],["users","Users","\u{1F464}"],["shops","Shops","\u{1F3EA}"],["products","Products","\u{1F4E6}"],["orders","Orders","\u{1F9FE}"],["analytics","Analytics","\u{1F4C8}"],["logs","Logs & Activity","\u{1F4DC}"],["security","Security","\u{1F6E1}"],["health","System Health","\u{1F493}"],["backup","Backup & Reports","\u2601"],["settings","Settings","\u2699"]];
+var TB={
+users:{k:"users",cols:["id","email","status"]},
+shops:{k:"shops",cols:["id","shop_name","country","status","created_at"]},
+products:{k:"products",cols:["id","name","price","currency","status","shop_name"]},
+orders:{k:"orders",cols:["id","product","quantity","total","commission","status","created_at"]},
+logs:{k:"logins",cols:["id","email","success","reason","created_at"]}};
+var OS=["pending","paid","shipped","delivered","cancelled"];
 
-var TABS = {
-  orders: { label: "Orders", key: "orders", cols: ["id", "product", "quantity", "total", "commission", "currency", "status", "created_at"] },
-  users: { label: "Users", key: "users", cols: ["id", "email", "status"] },
-  shops: { label: "Shops", key: "shops", cols: ["id", "shop_name", "country", "status", "created_at"] },
-  products: { label: "Products", key: "products", cols: ["id", "name", "price", "currency", "status", "shop_name"] },
-  logins: { label: "Logins", key: "logins", cols: ["id", "email", "success", "reason", "created_at"] }
-};
+function setTheme(t){document.documentElement.setAttribute("data-theme",t);try{localStorage.setItem("nxt",t)}catch(e){}}
+try{setTheme(localStorage.getItem("nxt")||"blue")}catch(e){}
 
-async function load() {
-  var res = await fetch("/api/admin-data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(creds)
-  });
-  return await res.json();
-}
+async function api(u,x){
+var r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({},C,x||{}))});
+return r.json()}
 
-async function signIn() {
-  var msg = document.getElementById("msg");
-  msg.textContent = "Please wait...";
-  creds = {
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value
-  };
-  try {
-    var d = await load();
-    if (!d.ok) { msg.textContent = d.error || "Not allowed."; creds = null; return; }
-    data = d;
-    msg.textContent = "";
-    document.getElementById("login").hidden = true;
-    document.getElementById("dash").hidden = false;
-    draw();
-  } catch (e) {
-    msg.textContent = "Could not connect.";
-    creds = null;
-  }
-}
+async function signIn(){
+var m=$("msg");m.textContent="Please wait...";
+C={email:$("email").value,password:$("password").value};
+try{var d=await api("/api/admin-data");
+if(!d.ok){m.textContent=d.error||"Not allowed.";C=null;return}
+D=d;m.textContent="";$("login").style.display="none";$("app").style.display="block";go("dash")}
+catch(e){m.textContent="Could not connect.";C=null}}
 
-async function refresh() {
-  try {
-    var d = await load();
-    if (d.ok) { data = d; draw(); }
-  } catch (e) {}
-}
+async function reload(){try{var d=await api("/api/admin-data");if(d.ok)D=d}catch(e){}render()}
+function logout(){C=null;D=null;$("password").value="";$("app").style.display="none";$("login").style.display="block"}
+function pop(id){var a=$(id),s=a.classList.contains("show");$("notes").classList.remove("show");$("umenu").classList.remove("show");if(!s){if(id=="notes")notes();a.classList.add("show")}}
+function go(v){V=v;Q="";$("q").value="";$("side").classList.remove("open");$("notes").classList.remove("show");$("umenu").classList.remove("show");render()}
+function search(v){Q=v.toLowerCase();if(!TB[V])V="users";render()}
 
-function logout() {
-  creds = null;
-  data = null;
-  document.getElementById("password").value = "";
-  document.getElementById("dash").hidden = true;
-  document.getElementById("login").hidden = false;
-}
+async function act(kind,id,status){
+var r=await api("/api/admin-action",{kind:kind,id:id,status:status});
+if(!r.ok){alert(r.error||"Failed.");return}
+reload()}
 
-function draw() {
-  var t = data.totals;
-  var items = [
-    ["Users", t.users],
-    ["Shops", t.shops],
-    ["Products", t.products],
-    ["Orders", t.orders],
-    ["Sales (USD)", Number(t.sales).toFixed(2)],
-    ["Commission", Number(t.commission).toFixed(2)],
-    ["Failed logins", t.failed_logins]
-  ];
-  var cards = document.getElementById("cards");
-  cards.innerHTML = "";
-  items.forEach(function (i) {
-    var c = document.createElement("div");
-    c.className = "card";
-    var s = document.createElement("small");
-    s.textContent = i[0];
-    var b = document.createElement("b");
-    b.textContent = i[1];
-    c.appendChild(s);
-    c.appendChild(b);
-    cards.appendChild(c);
-  });
+function rowsOf(n){var c=TB[n];return (D[c.k]||[]).filter(function(r){return !Q||JSON.stringify(r).toLowerCase().indexOf(Q)>-1})}
 
-  var tabs = document.getElementById("tabs");
-  tabs.innerHTML = "";
-  Object.keys(TABS).forEach(function (k) {
-    var btn = document.createElement("button");
-    btn.textContent = TABS[k].label;
-    if (k === tab) btn.className = "on";
-    btn.onclick = function () { tab = k; draw(); };
-    tabs.appendChild(btn);
-  });
+function table(n){
+var c=TB[n],rows=rowsOf(n),box=h("div","card sc");
+if(!rows.length){box.textContent="Nothing here.";return box}
+var t=h("table"),hr=h("tr");
+c.cols.concat(n=="logs"?[]:["action"]).forEach(function(x){hr.appendChild(h("th","",x.replace("_"," ")))});
+t.appendChild(hr);
+rows.forEach(function(r){
+var tr=h("tr");
+c.cols.forEach(function(x){var v=r[x];if(x=="success")v=v===1?"Yes":"No";tr.appendChild(h("td","",v==null?"":v))});
+if(n!="logs"){var td=h("td");
+if(n=="orders"){var s=h("select");OS.forEach(function(o){var op=h("option","",o);op.value=o;if(o==r.status)op.selected=true;s.appendChild(op)});s.onchange=function(){act("order",r.id,s.value)};td.appendChild(s)}
+else{var kind=n=="users"?"user":n=="shops"?"shop":"product";var off=n=="users"?"banned":"suspended";var bad=r.status==off;
+var b=h("button","btn"+(bad?" g":""),bad?(n=="users"?"Unban":"Activate"):(n=="users"?"Ban":"Suspend"));
+b.onclick=function(){act(kind,r.id,bad?"active":off)};td.appendChild(b)}
+tr.appendChild(td)}
+t.appendChild(tr)});
+box.appendChild(t);return box}
 
-  drawTable();
-}
+function stat(l,v){var c=h("div","card stat");return ap(c,h("small","",l),h("b","",v))}
+function list(title,rows,fn){var c=h("div","card");c.appendChild(h("h3","",title));
+if(!rows.length)c.appendChild(h("div","row","Nothing yet."));
+rows.slice(0,5).forEach(function(r){var d=h("div","row");fn(d,r);c.appendChild(d)});return c}
 
-function drawTable() {
-  var cfg = TABS[tab];
-  var rows = data[cfg.key] || [];
-  var box = document.getElementById("table");
-  box.innerHTML = "";
-  if (rows.length === 0) {
-    var e = document.createElement("div");
-    e.className = "empty";
-    e.textContent = "Nothing here yet.";
-    box.appendChild(e);
-    return;
-  }
-  var table = document.createElement("table");
-  var head = document.createElement("tr");
-  cfg.cols.forEach(function (c) {
-    var th = document.createElement("th");
-    th.textContent = c.replace("_", " ");
-    head.appendChild(th);
-  });
-  table.appendChild(head);
-  rows.forEach(function (r) {
-    var tr = document.createElement("tr");
-    cfg.cols.forEach(function (c) {
-      var td = document.createElement("td");
-      var v = r[c];
-      if (c === "success") v = v === 1 ? "Yes" : "No";
-      td.textContent = v === null || v === undefined ? "" : v;
-      tr.appendChild(td);
-    });
-    table.appendChild(tr);
-  });
-  box.appendChild(table);
-}
+function days(){var a=[];for(var i=6;i>=0;i--)a.push(new Date(Date.now()-i*864e5).toISOString().slice(0,10));return a}
+function chart(){
+var ds=days(),o=ds.map(function(){return 0}),s=o.slice();
+D.orders.forEach(function(r){var i=ds.indexOf(String(r.created_at).slice(0,10));if(i>-1){o[i]+=1;s[i]+=Number(r.total)}});
+function line(v,col){var m=Math.max(1,Math.max.apply(null,v)),p=v.map(function(x,i){return(30+i*90)+","+(170-x/m*140)});
+return '<polyline fill="none" stroke="'+col+'" stroke-width="3" points="'+p.join(" ")+'"/>'+p.map(function(q){var a=q.split(",");return '<circle cx="'+a[0]+'" cy="'+a[1]+'" r="4" fill="'+col+'"/>'}).join("")}
+var lab=ds.map(function(d,i){return '<text x="'+(30+i*90)+'" y="195" font-size="12" text-anchor="middle" fill="#8A98BD">'+d.slice(5)+'</text>'}).join("");
+var c=h("div","card");
+c.innerHTML='<h3>Platform Analytics (last 7 days)</h3><div class="leg"><span style="color:var(--acc)">&#9679; Orders</span><span style="color:var(--a2)">&#9679; Sales</span></div><svg viewBox="0 0 600 205" width="100%">'+line(o,"#2F6BFF")+line(s,"#3FD28A")+lab+'</svg>';
+return c}
+
+function csv(rows,cols){return cols.join(",")+"\n"+rows.map(function(r){return cols.map(function(c){return '"'+String(r[c]==null?"":r[c]).replace(/"/g,'""')+'"'}).join(",")}).join("\n")}
+function dl(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function report(){dl("nexora-orders.csv",csv(D.orders,TB.orders.cols),"text/csv")}
+function backup(){dl("nexora-backup.json",JSON.stringify(D,null,2),"application/json")}
+
+function pend(){return D.orders.filter(function(r){return r.status=="pending"})}
+function fails(){return D.logins.filter(function(r){return r.success!==1})}
+function notes(){var p=$("notes");p.innerHTML="";p.appendChild(h("h3","","Notifications"));
+var n=0;pend().slice(0,5).forEach(function(r){n++;p.appendChild(h("div","row","Pending order #"+r.id+" ("+r.product+")"))});
+fails().slice(0,5).forEach(function(r){n++;p.appendChild(h("div","row","Failed login: "+r.email))});
+if(!n)p.appendChild(h("div","row","No new notifications."))}
+
+async function health(box){
+box.innerHTML="";
+async function chk(name,url,body){var t=Date.now(),ok=false;try{var r=await fetch(url,body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({},C))}:undefined);var j=await r.json();ok=!!j.ok}catch(e){}
+var d=h("div","row");d.appendChild(h("span","",name));d.appendChild(h("span",ok?"ok":"no",(ok?"Healthy":"Down")+" ("+(Date.now()-t)+" ms)"));box.appendChild(d)}
+await chk("API server","/api/products");await chk("Database and admin API","/api/admin-data",1)}
+
+function render(){
+var nav=$("nav");nav.innerHTML="";
+NAV.forEach(function(n){var b=h("button",V==n[0]?"on":"",n[2]+"  "+n[1]);b.onclick=function(){go(n[0])};nav.appendChild(b)});
+var nb=pend().length+fails().length;$("nb").textContent=nb||"";
+var v=$("view");v.innerHTML="";var t=D.totals;
+var title=NAV.filter(function(n){return n[0]==V})[0][1];
+if(V=="dash"){
+var top=h("div","top");top.appendChild(ap(h("div"),h("h2","","Welcome back, Admin"),h("p","","Here is what is happening with Nexora today.")));
+top.appendChild(h("div","date",new Date().toDateString()));v.appendChild(top);
+var g=h("div","grid");[["Total Users",t.users],["Shops",t.shops],["Orders",t.orders],["Sales / Commission",Number(t.sales).toFixed(2)+" / "+Number(t.commission).toFixed(2)]].forEach(function(s){g.appendChild(stat(s[0],s[1]))});v.appendChild(g);
+var two=h("div","two");two.appendChild(chart());
+var qa=h("div","card qa");qa.appendChild(h("h3","","Quick Actions"));
+[["Manage Users",function(){go("users")}],["View Orders",function(){go("orders")}],["Generate Report",report],["System Settings",function(){go("settings")}]].forEach(function(a){var b=h("button","btn g",a[0]);b.onclick=a[1];qa.appendChild(b)});
+two.appendChild(qa);v.appendChild(two);
+var t2=h("div","two");
+t2.appendChild(list("Recent Users",D.users,function(d,r){d.appendChild(h("span","",r.email));d.appendChild(h("span","tag",r.status))}));
+t2.appendChild(list("Recent Orders",D.orders,function(d,r){d.appendChild(h("span","","#"+r.id+" "+r.product));d.appendChild(h("span","tag",r.status))}));
+t2.appendChild(list("Recent Logins",D.logins,function(d,r){d.appendChild(h("span","",r.email));d.appendChild(h("span",r.success===1?"ok":"no",r.success===1?"OK":"Failed"))}));
+v.appendChild(t2);return}
+v.appendChild(ap(h("div","top"),h("h2","",title)));
+if(TB[V]){v.appendChild(table(V))}
+else if(V=="analytics"){var g2=h("div","grid");[["Users",t.users],["Products",t.products],["Orders",t.orders],["Sales",Number(t.sales).toFixed(2)],["Commission",Number(t.commission).toFixed(2)]].forEach(function(s){g2.appendChild(stat(s[0],s[1]))});v.appendChild(g2);var w=h("div");w.style.marginTop="12px";w.appendChild(chart());v.appendChild(w)}
+else if(V=="security"){var g3=h("div","grid");g3.appendChild(stat("Failed logins (all time)",t.failed_logins));g3.appendChild(stat("Failed in recent 50",fails().length));v.appendChild(g3);
+v.appendChild(list("Recent failed logins",fails(),function(d,r){d.appendChild(h("span","",r.email));d.appendChild(h("span","tag",r.reason+" "+r.created_at))}))}
+else if(V=="health"){var c=h("div","card");v.appendChild(c);health(c)}
+else if(V=="backup"){var c2=h("div","card");c2.appendChild(h("h3","","Download your data"));
+var b1=h("button","btn w","Download backup (JSON)");b1.onclick=backup;var b2=h("button","btn g w","Download orders report (CSV)");b2.onclick=report;
+c2.appendChild(b1);c2.appendChild(b2);v.appendChild(c2)}
+else if(V=="settings"){var c3=h("div","card");c3.appendChild(h("h3","","Theme"));
+[["blue","Blue (dark)"],["purple","Purple (dark)"],["light","Light"]].forEach(function(x){var b=h("button","btn g w",x[1]);b.onclick=function(){setTheme(x[0])};c3.appendChild(b)});
+var lo=h("button","btn w","Log out");lo.onclick=logout;c3.appendChild(lo);v.appendChild(c3)}}
 </script>
 </body>
 </html>
