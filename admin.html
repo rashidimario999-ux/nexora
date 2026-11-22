@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Nexora Admin</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #F1F5FB; color: #0F1E3D; }
+.bar { background: #0B2E6B; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.bar h1 { margin: 0; font-size: 18px; }
+.bar span { color: #8FB4FF; font-size: 12px; display: block; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 14px; }
+.box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(11,46,107,.08); }
+input, button { width: 100%; padding: 12px; margin: 6px 0; font-size: 16px; border-radius: 10px; border: 1px solid #C5D3EA; }
+button { background: #1D4ED8; color: #fff; border: 0; font-weight: 700; }
+button.light { background: #E3ECFB; color: #0B2E6B; }
+.bar button { width: auto; margin: 0 0 0 8px; padding: 8px 12px; font-size: 13px; }
+#msg { font-weight: 700; color: #B42318; margin-top: 8px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.card { background: #fff; border-radius: 12px; padding: 12px; border-left: 5px solid #1D4ED8; box-shadow: 0 2px 8px rgba(11,46,107,.08); }
+.card small { color: #5A6B8C; display: block; font-size: 12px; }
+.card b { font-size: 22px; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; }
+.tabs button { width: auto; margin: 0; padding: 10px 14px; font-size: 14px; background: #E3ECFB; color: #0B2E6B; white-space: nowrap; }
+.tabs button.on { background: #1D4ED8; color: #fff; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; background: #E3ECFB; padding: 8px; white-space: nowrap; }
+td { padding: 8px; border-top: 1px solid #E3ECFB; white-space: nowrap; }
+.empty { padding: 16px; color: #5A6B8C; }
+</style>
+</head>
+<body>
+
+<div id="login" class="wrap">
+  <div class="box">
+    <h2>Nexora Admin</h2>
+    <input id="email" type="email" placeholder="Admin email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="signIn()">Sign in</button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<div id="dash" hidden>
+  <div class="bar">
+    <h1>Nexora Admin<span>Command centre</span></h1>
+    <div><button class="light" onclick="refresh()">Refresh</button><button class="light" onclick="logout()">Log out</button></div>
+  </div>
+  <div class="wrap">
+    <div id="cards" class="cards"></div>
+    <div id="tabs" class="tabs"></div>
+    <div class="box scroll" id="table"></div>
+  </div>
+</div>
+
+<script>
+var creds = null;
+var data = null;
+var tab = "orders";
+
+var TABS = {
+  orders: { label: "Orders", key: "orders", cols: ["id", "product", "quantity", "total", "commission", "currency", "status", "created_at"] },
+  users: { label: "Users", key: "users", cols: ["id", "email", "status"] },
+  shops: { label: "Shops", key: "shops", cols: ["id", "shop_name", "country", "status", "created_at"] },
+  products: { label: "Products", key: "products", cols: ["id", "name", "price", "currency", "status", "shop_name"] },
+  logins: { label: "Logins", key: "logins", cols: ["id", "email", "success", "reason", "created_at"] }
+};
+
+async function load() {
+  var res = await fetch("/api/admin-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(creds)
+  });
+  return await res.json();
+}
+
+async function signIn() {
+  var msg = document.getElementById("msg");
+  msg.textContent = "Please wait...";
+  creds = {
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
+  };
+  try {
+    var d = await load();
+    if (!d.ok) { msg.textContent = d.error || "Not allowed."; creds = null; return; }
+    data = d;
+    msg.textContent = "";
+    document.getElementById("login").hidden = true;
+    document.getElementById("dash").hidden = false;
+    draw();
+  } catch (e) {
+    msg.textContent = "Could not connect.";
+    creds = null;
+  }
+}
+
+async function refresh() {
+  try {
+    var d = await load();
+    if (d.ok) { data = d; draw(); }
+  } catch (e) {}
+}
+
+function logout() {
+  creds = null;
+  data = null;
+  document.getElementById("password").value = "";
+  document.getElementById("dash").hidden = true;
+  document.getElementById("login").hidden = false;
+}
+
+function draw() {
+  var t = data.totals;
+  var items = [
+    ["Users", t.users],
+    ["Shops", t.shops],
+    ["Products", t.products],
+    ["Orders", t.orders],
+    ["Sales (USD)", Number(t.sales).toFixed(2)],
+    ["Commission", Number(t.commission).toFixed(2)],
+    ["Failed logins", t.failed_logins]
+  ];
+  var cards = document.getElementById("cards");
+  cards.innerHTML = "";
+  items.forEach(function (i) {
+    var c = document.createElement("div");
+    c.className = "card";
+    var s = document.createElement("small");
+    s.textContent = i[0];
+    var b = document.createElement("b");
+    b.textContent = i[1];
+    c.appendChild(s);
+    c.appendChild(b);
+    cards.appendChild(c);
+  });
+
+  var tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  Object.keys(TABS).forEach(function (k) {
+    var btn = document.createElement("button");
+    btn.textContent = TABS[k].label;
+    if (k === tab) btn.className = "on";
+    btn.onclick = function () { tab = k; draw(); };
+    tabs.appendChild(btn);
+  });
+
+  drawTable();
+}
+
+function drawTable() {
+  var cfg = TABS[tab];
+  var rows = data[cfg.key] || [];
+  var box = document.getElementById("table");
+  box.innerHTML = "";
+  if (rows.length === 0) {
+    var e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "Nothing here yet.";
+    box.appendChild(e);
+    return;
+  }
+  var table = document.createElement("table");
+  var head = document.createElement("tr");
+  cfg.cols.forEach(function (c) {
+    var th = document.createElement("th");
+    th.textContent = c.replace("_", " ");
+    head.appendChild(th);
+  });
+  table.appendChild(head);
+  rows.forEach(function (r) {
+    var tr = document.createElement("tr");
+    cfg.cols.forEach(function (c) {
+      var td = document.createElement("td");
+      var v = r[c];
+      if (c === "success") v = v === 1 ? "Yes" : "No";
+      td.textContent = v === null || v === undefined ? "" : v;
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+  box.appendChild(table);
+}
+</script>
+</body>
+</html>
