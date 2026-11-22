@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Place an Order</title>
+<style>
+body { font-family: sans-serif; max-width: 400px; margin: 20px auto; padding: 0 12px; }
+input, button { width: 100%; padding: 12px; margin: 6px 0; font-size: 16px; box-sizing: border-box; }
+#msg { margin: 12px 0; font-weight: bold; }
+.card { border: 1px solid #ccc; border-radius: 8px; padding: 10px; margin: 10px 0; }
+.card.sel { border: 2px solid #5B21D6; background: #EDE5FF; }
+.shop { color: #666; font-size: 14px; }
+</style>
+</head>
+<body>
+<h2>Place an Order</h2>
+<p>Step 1: tap a product below.</p>
+<div id="list">Loading...</div>
+<p>Step 2: enter your details.</p>
+<input id="email" type="email" placeholder="Buyer email">
+<input id="password" type="password" placeholder="Buyer password">
+<input id="qty" type="number" min="1" value="1" placeholder="Quantity">
+<button onclick="placeOrder()">Place order</button>
+<div id="msg"></div>
+<script>
+var chosen = null;
+
+async function loadProducts() {
+  var list = document.getElementById("list");
+  try {
+    var res = await fetch("/api/products");
+    var data = await res.json();
+    if (!data.ok || data.products.length === 0) { list.textContent = "No products yet."; return; }
+    list.innerHTML = "";
+    data.products.forEach(function (p) {
+      var card = document.createElement("div");
+      card.className = "card";
+      var title = document.createElement("strong");
+      title.textContent = "#" + p.id + " " + p.name + " - " + p.price + " " + p.currency;
+      var shop = document.createElement("div");
+      shop.className = "shop";
+      shop.textContent = "Sold by " + p.shop_name;
+      card.appendChild(title);
+      card.appendChild(shop);
+      card.onclick = function () {
+        chosen = p.id;
+        document.querySelectorAll(".card").forEach(function (c) { c.classList.remove("sel"); });
+        card.classList.add("sel");
+      };
+      list.appendChild(card);
+    });
+  } catch (e) {
+    list.textContent = "Could not connect.";
+  }
+}
+
+async function placeOrder() {
+  var msg = document.getElementById("msg");
+  if (!chosen) { msg.textContent = "Please tap a product first."; return; }
+  msg.textContent = "Please wait...";
+  try {
+    var res = await fetch("/api/place-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        product_id: chosen,
+        quantity: document.getElementById("qty").value
+      })
+    });
+    var data = await res.json();
+    msg.textContent = data.ok ? "Order placed. Total: " + data.total + " " + data.currency : data.error;
+  } catch (e) {
+    msg.textContent = "Could not connect.";
+  }
+}
+
+loadProducts();
+</script>
+</body>
+</html>
