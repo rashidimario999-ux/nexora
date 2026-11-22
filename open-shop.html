@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open a Shop</title>
+<style>
+body { font-family: sans-serif; max-width: 400px; margin: 20px auto; padding: 0 12px; }
+input, button { width: 100%; padding: 12px; margin: 6px 0; font-size: 16px; box-sizing: border-box; }
+#msg { margin-top: 12px; font-weight: bold; }
+</style>
+</head>
+<body>
+<h2>Open a Shop</h2>
+<input id="email" type="email" placeholder="Your email">
+<input id="password" type="password" placeholder="Your password">
+<input id="shop" type="text" placeholder="Shop name">
+<input id="country" type="text" placeholder="Country">
+<button onclick="openShop()">Open my shop</button>
+<div id="msg"></div>
+<script>
+async function openShop() {
+  var msg = document.getElementById("msg");
+  msg.textContent = "Please wait...";
+  try {
+    var res = await fetch("/api/open-shop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        shop_name: document.getElementById("shop").value,
+        country: document.getElementById("country").value
+      })
+    });
+    var data = await res.json();
+    msg.textContent = data.ok ? "Shop opened: " + data.shop_name : data.error;
+  } catch (e) {
+    msg.textContent = "Could not connect.";
+  }
+}
+</script>
+</body>
+</html>
