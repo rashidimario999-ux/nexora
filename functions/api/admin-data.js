@@ -63,7 +63,8 @@ export async function onRequestPost(context) {
       "(SELECT COUNT(*) FROM orders) AS orders, " +
       "(SELECT COALESCE(SUM(total), 0) FROM orders) AS sales, " +
       "(SELECT COALESCE(SUM(commission), 0) FROM orders) AS commission, " +
-      "(SELECT COUNT(*) FROM login_log WHERE success = 0) AS failed_logins"
+      "(SELECT COUNT(*) FROM login_log WHERE success = 0) AS failed_logins, " +
+      "(SELECT COUNT(*) FROM support_messages WHERE status = 'open') AS open_support"
     ).first();
 
     const users = await db.prepare(
@@ -88,6 +89,10 @@ export async function onRequestPost(context) {
       "SELECT id, email, success, reason, created_at FROM login_log ORDER BY id DESC LIMIT 50"
     ).all();
 
+    const support = await db.prepare(
+      "SELECT id, name, email, subject, message, status, created_at FROM support_messages ORDER BY id DESC LIMIT 100"
+    ).all();
+
     return json({
       ok: true,
       totals: totals,
@@ -95,7 +100,8 @@ export async function onRequestPost(context) {
       shops: shops.results,
       products: products.results,
       orders: orders.results,
-      logins: logins.results
+      logins: logins.results,
+      support: support.results
     });
   } catch (e) {
     return json({ error: "Something went wrong." }, 500);
