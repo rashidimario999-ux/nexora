@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Nexora Support</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #050B1F; color: #EAF0FF; }
+.wrap { max-width: 420px; margin: 0 auto; padding: 24px 16px; }
+.box { background: #0A1431; border: 1px solid #16244A; border-radius: 16px; padding: 18px; }
+h1 { margin: 0 0 4px; font-size: 22px; }
+p { color: #8A98BD; margin: 0 0 14px; }
+input, textarea, button { width: 100%; padding: 12px; margin: 6px 0; font: inherit; font-size: 16px; border-radius: 10px; border: 1px solid #16244A; background: #0B1636; color: #EAF0FF; }
+textarea { min-height: 120px; resize: vertical; }
+button { background: #2F6BFF; border: 0; font-weight: 700; cursor: pointer; }
+#msg { margin-top: 10px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="box">
+    <h1>Contact Nexora Support</h1>
+    <p>Send us a message and we will reply by email.</p>
+    <input id="name" type="text" placeholder="Your name">
+    <input id="email" type="email" placeholder="Your email">
+    <input id="subject" type="text" placeholder="Subject">
+    <textarea id="message" placeholder="How can we help?"></textarea>
+    <button onclick="send()">Send message</button>
+    <div id="msg"></div>
+  </div>
+</div>
+<script>
+async function send() {
+  var msg = document.getElementById("msg");
+  msg.style.color = "#8A98BD";
+  msg.textContent = "Please wait...";
+  try {
+    var res = await fetch("/api/support", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        subject: document.getElementById("subject").value,
+        message: document.getElementById("message").value
+      })
+    });
+    var data = await res.json();
+    if (data.ok) {
+      msg.style.color = "#3FD28A";
+      msg.textContent = "Message sent. Thank you!";
+      document.getElementById("subject").value = "";
+      document.getElementById("message").value = "";
+    } else {
+      msg.style.color = "#EF4444";
+      msg.textContent = data.error;
+    }
+  } catch (e) {
+    msg.style.color = "#EF4444";
+    msg.textContent = "Could not connect.";
+  }
+}
+</script>
+</body>
+  </html>
