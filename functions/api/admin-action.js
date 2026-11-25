@@ -37,7 +37,8 @@ const RULES = {
   user: { table: "users", allowed: ["active", "banned"] },
   shop: { table: "sellers", allowed: ["active", "suspended"] },
   product: { table: "products", allowed: ["active", "suspended"] },
-  order: { table: "orders", allowed: ["pending", "paid", "shipped", "delivered", "cancelled"] }
+  order: { table: "orders", allowed: ["pending", "paid", "shipped", "delivered", "cancelled"] },
+  support: { table: "support_messages", allowed: ["open", "solved"] }
 };
 
 export async function onRequestPost(context) {
@@ -82,4 +83,4 @@ export async function onRequestPost(context) {
   } catch (e) {
     return json({ error: "Something went wrong." }, 500);
   }
-}
+    }
